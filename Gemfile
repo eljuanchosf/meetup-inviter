@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gem "capybara-webkit"
 gem "capybara"
-gem 'typhoeus'
 
 gem 'sequel'
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
@@ -13,4 +12,3 @@ end
 
 gem 'dotenv'
 gem 'thor'
-gem 'concurrent-ruby', require: 'concurrent'
