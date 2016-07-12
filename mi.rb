@@ -123,6 +123,7 @@ class Mi < Thor
       find_by_id('messaging-new-send',wait: 5).trigger('click')
       DB[:users].where('user_id = ?', user[:user_id]).update(sent: true)
       LOGGER.info "Message sent!"
+      sleep rand(3..5)
     end
   end
 
