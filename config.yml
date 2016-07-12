@@ -1,8 +1,8 @@
 ---
+own_meetup: http://www.meetup.com/es-ES/Buenos-Aires-Cloud-Foundry-Meetup/
 meetups:
   - http://www.meetup.com/es-ES/openstack-argentina/
   - http://www.meetup.com/es-ES/open-source-argentina/
-  - http://www.meetup.com/es-ES/ArquitecturaDeSoftware/
   - http://www.meetup.com/es-ES/jugargentina/
   - http://www.meetup.com/es-ES/Docker-Buenos-Aires/
   - http://www.meetup.com/es-ES/AWS-User-Group-Buenos-Aires/

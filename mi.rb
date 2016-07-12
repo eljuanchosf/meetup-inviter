@@ -11,6 +11,7 @@ LOGGER = Logger.new(STDOUT)
 LOGGER.level = Logger::DEBUG
 
 CONFIG = YAML.load_file(File.join(Dir.pwd,'config.yml'))
+OWN_GROUP_USERS = Array.new
 
 display_pass = ENV['TM_PASS'].dup
 display_pass[1..-1] = ('*' * (display_pass.size - 1))
@@ -30,6 +31,7 @@ begin
     String      :username
     String      :message_url
     Boolean     :sent,           default: false
+    Boolean     :in_own_group,   default: false
     DateTime    :created_at,     default: DateTime.now
     primary_key [:user_id], :name=>:user_pk
   end
@@ -63,6 +65,7 @@ class Mi < Thor
   LONGDESC
   def populate
     start_crawl
+    crawl_meetup_users(CONFIG['own_meetup'], true)
     CONFIG['meetups'].each do |meetup_url|
       crawl_meetup_users(meetup_url)
     end
@@ -76,7 +79,7 @@ class Mi < Thor
   def send
     LOGGER.info "Message is:\n#{CONFIG['message']}"
     LOGGER.info "Sending #{DB[:users].count} messages"
-    users = DB[:users].where('sent = ?', false)
+    users = DB[:users].where('sent = ? and in_own_group = ?', false, false)
     start_crawl
     users.each do |user|
       send_message(user)
@@ -105,6 +108,36 @@ class Mi < Thor
     fill_in('email', with: ENV['TM_USER'])
     fill_in('password', with: ENV['TM_PASS'])
     find(:xpath, "//*[@id='loginForm']/div/div[3]/input").trigger('click')
+  end
+
+  def add_meetup_users(meetup_users, meetup_url, own_group = false)
+    meetup_users.each do |meetup_user|
+      user_id = meetup_user.attr('data-memid').strip
+      username = meetup_user.xpath("div/div[2]/h4/a").text.strip
+      user = { meetup_url:   meetup_url,
+               username:     username,
+               user_id:      user_id,
+               message_url:  message_url(username, user_id),
+               in_own_group: own_group
+             }
+      if DB[:users].where(user_id: user_id).count == 0
+        DB[:users].insert(user)
+        LOGGER.info "Added user #{username} - #{user_id}"
+      end
+    end
+  end
+
+  def crawl_meetup_users(meetup_url, own_group = false)
+    visit(meetup_url)
+    find(:xpath, "//*[@id='group-links']/li[2]/a").trigger('click')
+    doc = Nokogiri::HTML(page.html)
+    total_members = doc.xpath("//*[@id='C_document']/div/div[2]/ul/li[1]/a/span").text.strip.delete('().').to_i
+    1.upto(pages(total_members)) do |page_number|
+      LOGGER.info "Visiting #{user_list_url(page_number, meetup_url)}"
+      visit(user_list_url(page_number, meetup_url))
+      doc = Nokogiri::HTML(page.html)
+      add_meetup_users(doc.xpath("//*[@id='memberList']/li"), meetup_url, own_group)
+    end
   end
 
   def send_message(user)
@@ -142,35 +175,6 @@ class Mi < Thor
       pages += 1
     end
     pages
-  end
-
-  def add_meetup_users(meetup_users, meetup_url)
-    meetup_users.each do |meetup_user|
-      user_id = meetup_user.attr('data-memid').strip
-      username = meetup_user.xpath("div/div[2]/h4/a").text.strip
-      user = { meetup_url: meetup_url,
-               username:   username,
-               user_id:    user_id,
-               message_url: message_url(username, user_id)
-             }
-      if DB[:users].where(user_id: user_id).count == 0
-        DB[:users].insert(user)
-        LOGGER.info "Added user #{username} - #{user_id}"
-      end
-    end
-  end
-
-  def crawl_meetup_users(meetup_url)
-    visit(meetup_url)
-    find(:xpath, "//*[@id='group-links']/li[2]/a").trigger('click')
-    doc = Nokogiri::HTML(page.html)
-    total_members = doc.xpath("//*[@id='C_document']/div/div[2]/ul/li[1]/a/span").text.strip.delete('()').to_i
-    1.upto(pages(total_members)) do |page_number|
-      LOGGER.info "Visiting #{user_list_url(page_number, meetup_url)}"
-      visit(user_list_url(page_number, meetup_url))
-      doc = Nokogiri::HTML(page.html)
-      add_meetup_users(doc.xpath("//*[@id='memberList']/li"), meetup_url)
-    end
   end
 end
 
