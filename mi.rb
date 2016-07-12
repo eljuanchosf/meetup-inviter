@@ -2,6 +2,7 @@
 require 'rubygems'
 require 'bundler'
 Bundler.require
+require 'uri'
 require 'yaml'
 require 'logger'
 require 'capybara/dsl'
@@ -29,7 +30,6 @@ begin
     Integer     :user_id
     String      :meetup_url
     String      :username
-    String      :message_url
     Boolean     :sent,           default: false
     Boolean     :in_own_group,   default: false
     DateTime    :created_at,     default: DateTime.now
@@ -78,8 +78,8 @@ class Mi < Thor
   LONGDESC
   def send
     LOGGER.info "Message is:\n#{CONFIG['message']}"
-    LOGGER.info "Sending #{DB[:users].count} messages"
     users = DB[:users].where('sent = ? and in_own_group = ?', false, false)
+    LOGGER.info "Sending #{users.count} messages"
     start_crawl
     users.each do |user|
       send_message(user)
@@ -117,7 +117,6 @@ class Mi < Thor
       user = { meetup_url:   meetup_url,
                username:     username,
                user_id:      user_id,
-               message_url:  message_url(username, user_id),
                in_own_group: own_group
              }
       if DB[:users].where(user_id: user_id).count == 0
@@ -144,7 +143,7 @@ class Mi < Thor
     first_name = user[:username].split(' ').first
     message = CONFIG['message'].gsub('username', first_name)
     LOGGER.info "Sending message to #{user[:username]}"
-    visit(user[:message_url])
+    visit(message_url(user))
     doc = Nokogiri::HTML(page.html)
     begin
       while find(:css, "i.icon-refresh.spinning", visible: true)
@@ -159,8 +158,8 @@ class Mi < Thor
     end
   end
 
-  def message_url(username, user_id)
-    "https://secure.meetup.com/es-ES/messages/?new_convo=true&amp;member_id=#{user_id}&amp;name=#{username}"
+  def message_url(user)
+    "https://secure.meetup.com/es-ES/messages/?new_convo=true&amp;member_id=#{user[:user_id]}&amp;name=#{URI::encode(user[:username])}"
   end
 
   def user_list_url(page, meetup_url)

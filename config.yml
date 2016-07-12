@@ -3,11 +3,11 @@ own_meetup: http://www.meetup.com/es-ES/Buenos-Aires-Cloud-Foundry-Meetup/
 meetups:
   - http://www.meetup.com/es-ES/openstack-argentina/
   - http://www.meetup.com/es-ES/open-source-argentina/
-  - http://www.meetup.com/es-ES/jugargentina/
-  - http://www.meetup.com/es-ES/Docker-Buenos-Aires/
-  - http://www.meetup.com/es-ES/AWS-User-Group-Buenos-Aires/
-  - http://www.meetup.com/es-ES/Buenos-Aires-Cloud-Computing/
-  - http://www.meetup.com/es-ES/DevOps-en-Espanol/
+#  - http://www.meetup.com/es-ES/jugargentina/
+#  - http://www.meetup.com/es-ES/Docker-Buenos-Aires/
+#  - http://www.meetup.com/es-ES/AWS-User-Group-Buenos-Aires/
+#  - http://www.meetup.com/es-ES/Buenos-Aires-Cloud-Computing/
+#  - http://www.meetup.com/es-ES/DevOps-en-Espanol/
 message: "Hola, username! Cómo estás? Quería invitarte a la primer meetup de Cloud Foundry de Buenos Aires.
 Cloud Foundry es un PaaS (estilo Heroku) completamente Open Source que está cambiando la manera de desarrollar y desplegar software.
 Lo usan empresas como HP, EMC, Pivotal, GE, IBM, Intel, SAP, VMWare, y muchos más.
