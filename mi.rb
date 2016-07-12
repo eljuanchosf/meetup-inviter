@@ -76,7 +76,7 @@ class Mi < Thor
   def send
     LOGGER.info "Message is:\n#{CONFIG['message']}"
     LOGGER.info "Sending #{DB[:users].count} messages"
-    users = DB[:users].where('user_id = ? and sent = ?', 56861192, false)
+    users = DB[:users].where('sent = ?', false)
     start_crawl
     users.each do |user|
       send_message(user)
