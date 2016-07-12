@@ -58,8 +58,8 @@ class Mi < Thor
 
   desc 'populate', 'Populates the database'
   long_desc <<-LONGDESC
-    `mi populate` will scan #{CONFIG['start_url']} and get the list of videos
-    to download into a database.
+    `mi populate` will scan #{CONFIG['start_url']} and get the list of users
+    of the configured meetups.
   LONGDESC
   def populate
     start_crawl
@@ -84,12 +84,11 @@ class Mi < Thor
     LOGGER.info('Finished sending!')
   end
 
-  desc 'full_crawl', 'Prepopulate and download videos'
+  desc 'full', 'Prepopulate and download videos'
   long_desc <<-LONGDESC
-    `mi full_crawl` will prepopulate the database and download the videos from
-    the list into #{ENV['TARGET_FOLDER']}
+    `mi full` will prepopulate the database and send the message to the users
   LONGDESC
-  def full_crawl
+  def full
     populate
     send
   end
