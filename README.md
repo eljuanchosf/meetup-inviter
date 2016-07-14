@@ -2,7 +2,7 @@
 
 ## Objective
 
-Invite to meetups.
+Send individual messages via Meetup.com to other meetup members. Great to invite others to your meetup.
 
 ## Disclaimer
 
